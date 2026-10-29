@@ -1,0 +1,49 @@
+<aside class="sidebar">
+  <a class="brand" routerLink="/">
+    <span class="brand-icon">
+      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path d="M4 16.5 9 11l3.5 3.5L20 6.5"
+          stroke="currentColor" stroke-width="2.5"
+          stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M14.5 6.5H20V12"
+          stroke="currentColor" stroke-width="2.5"
+          stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </span>
+    <span>Money<span class="brand-accent">Flow</span></span>
+  </a>
+
+  <div class="nav-section">
+    <span class="nav-label">MENU PRINCIPAL</span>
+
+    <a class="nav-item" routerLink="/" [routerLinkActiveOptions]="{ exact: true }"
+      routerLinkActive="active">
+      <span class="nav-icon">⌂</span>
+      <span>Dashboard</span>
+    </a>
+
+    <a class="nav-item" routerLink="/movimentacoes" routerLinkActive="active">
+      <span class="nav-icon">⇄</span>
+      <span>Movimentações</span>
+    </a>
+  </div>
+
+  <div class="sidebar-bottom">
+    <div class="security-card">
+      <span class="security-dot"></span>
+      <div>
+        <strong>MoneyFlow</strong>
+        <span>Controle inteligente</span>
+      </div>
+    </div>
+
+    <div class="profile">
+      <div class="avatar">MF</div>
+      <div class="profile-info">
+        <strong>Meu espaço</strong>
+        <span>Finanças pessoais</span>
+      </div>
+      <span class="profile-menu">•••</span>
+    </div>
+  </div>
+</aside>

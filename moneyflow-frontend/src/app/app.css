@@ -1,0 +1,29 @@
+:host {
+  display: block;
+  min-height: 100vh;
+}
+
+.app-shell {
+  min-height: 100vh;
+  background: #080e19;
+}
+
+.main-content {
+  min-height: 100vh;
+  margin-left: 250px;
+  padding: 36px;
+}
+
+@media (max-width: 900px) {
+  .main-content {
+    margin-left: 0;
+    padding: 24px 18px;
+    padding-top: 96px;
+  }
+}
+
+@media (max-width: 480px) {
+  .main-content {
+    padding: 88px 14px 24px;
+  }
+}

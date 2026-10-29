@@ -1,0 +1,195 @@
+<header class="page-header">
+  <div>
+    <div class="eyebrow"><span class="live-dot"></span> GESTÃO FINANCEIRA</div>
+    <h1>Movimentações<span class="title-dot">.</span></h1>
+    <p class="page-description">
+      Gerencie suas entradas e saídas em um só lugar.
+    </p>
+  </div>
+</header>
+
+<section class="summary-grid">
+  <article class="summary-card">
+    <span>Saldo dos lançamentos</span>
+    <strong>{{ saldo | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</strong>
+  </article>
+  <article class="summary-card">
+    <span>Total de receitas</span>
+    <strong class="income-text">
+      {{ totalReceitas | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}
+    </strong>
+  </article>
+  <article class="summary-card">
+    <span>Total de despesas</span>
+    <strong class="expense-text">
+      {{ totalDespesas | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}
+    </strong>
+  </article>
+</section>
+
+<section class="panel form-panel">
+  <div class="panel-header">
+    <div>
+      <h2>{{ editandoId !== null ? 'Editar movimentação' : 'Nova movimentação' }}</h2>
+      <p>Informe os dados do lançamento financeiro.</p>
+    </div>
+    <span class="form-icon">＋</span>
+  </div>
+
+  <form (ngSubmit)="salvar()" #movForm="ngForm">
+    <div class="form-grid">
+      <label class="field">
+        <span>Descrição <b>*</b></span>
+        <input
+          type="text"
+          name="descricao"
+          [(ngModel)]="formulario.descricao"
+          placeholder="Ex.: Conta de energia"
+          maxlength="150"
+          required>
+      </label>
+
+      <label class="field">
+        <span>Categoria <b>*</b></span>
+        <input
+          type="text"
+          name="categoria"
+          [(ngModel)]="formulario.categoria"
+          placeholder="Ex.: Moradia"
+          maxlength="80"
+          required>
+      </label>
+
+      <label class="field">
+        <span>Valor (R$) <b>*</b></span>
+        <input
+          type="number"
+          name="valor"
+          [(ngModel)]="formulario.valor"
+          placeholder="0,00"
+          min="0.01"
+          step="0.01"
+          required>
+      </label>
+
+      <label class="field">
+        <span>Data <b>*</b></span>
+        <input
+          type="date"
+          name="data"
+          [(ngModel)]="formulario.data"
+          required>
+      </label>
+
+      <label class="field">
+        <span>Tipo <b>*</b></span>
+        <select name="tipo" [(ngModel)]="formulario.tipo" required>
+          <option value="DESPESA">Despesa</option>
+          <option value="RECEITA">Receita</option>
+        </select>
+      </label>
+    </div>
+
+    @if (mensagem) {
+      <div class="form-message" role="alert">{{ mensagem }}</div>
+    }
+
+    <div class="form-actions">
+      @if (editandoId !== null) {
+        <button type="button" class="btn-secondary" (click)="cancelarEdicao()">
+          Cancelar
+        </button>
+      }
+
+      <button type="submit" class="btn-primary">
+        <span>{{ editandoId !== null ? '✓' : '+' }}</span>
+        {{ editandoId !== null ? 'Salvar alterações' : 'Adicionar movimentação' }}
+      </button>
+    </div>
+  </form>
+</section>
+
+<section class="panel list-panel">
+  <div class="panel-header list-header">
+    <div>
+      <h2>Todos os lançamentos</h2>
+      <p>{{ listaFiltrada.length }} movimentação(ões) encontrada(s)</p>
+    </div>
+  </div>
+
+  <div class="filters">
+    <label class="search-box">
+      <span>⌕</span>
+      <input
+        type="search"
+        name="busca"
+        [(ngModel)]="busca"
+        placeholder="Buscar por descrição ou categoria..."
+        aria-label="Buscar movimentações">
+    </label>
+
+    <select name="filtro" [(ngModel)]="filtro" aria-label="Filtrar por tipo">
+      <option value="TODOS">Todos os tipos</option>
+      <option value="RECEITA">Receitas</option>
+      <option value="DESPESA">Despesas</option>
+    </select>
+  </div>
+
+  <div class="table-scroll">
+    <table>
+      <thead>
+        <tr>
+          <th>DESCRIÇÃO</th>
+          <th>CATEGORIA</th>
+          <th>DATA</th>
+          <th>TIPO</th>
+          <th class="align-right">VALOR</th>
+          <th class="align-right">AÇÕES</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        @for (item of listaFiltrada; track item.id) {
+          <tr>
+            <td><strong class="description-text">{{ item.descricao }}</strong></td>
+            <td>{{ item.categoria }}</td>
+            <td>{{ item.data | date:'dd/MM/yyyy':'':'pt-BR' }}</td>
+            <td>
+              <span [class]="'type-pill ' +
+                (item.tipo === 'RECEITA' ? 'type-income' : 'type-expense')">
+                {{ item.tipo === 'RECEITA' ? 'Receita' : 'Despesa' }}
+              </span>
+            </td>
+            <td class="align-right">
+              <strong [class]="item.tipo === 'RECEITA' ? 'income-text' : 'expense-text'">
+                {{ item.valor | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}
+              </strong>
+            </td>
+            <td>
+              <div class="row-actions">
+                <button type="button" class="icon-button edit-button"
+                  (click)="editar(item)" [attr.aria-label]="'Editar ' + item.descricao"
+                  title="Editar">✎</button>
+                <button type="button" class="icon-button delete-button"
+                  (click)="excluir(item)" [attr.aria-label]="'Excluir ' + item.descricao"
+                  title="Excluir">×</button>
+              </div>
+            </td>
+          </tr>
+        } @empty {
+          <tr>
+            <td colspan="6" class="empty-state">
+              <span>⌕</span>
+              <strong>Nenhuma movimentação encontrada</strong>
+              <p>Tente alterar a busca ou cadastre um novo lançamento.</p>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<div class="demo-disclaimer">
+  ⓘ As alterações desta tela ainda são temporárias e serão perdidas ao recarregar a página.
+</div>

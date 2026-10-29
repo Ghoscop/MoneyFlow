@@ -1,0 +1,345 @@
+
+<header class="page-header">
+  <div>
+    <div class="eyebrow">
+      <span class="live-dot"></span>
+      MONEYFLOW · CONTROLE FINANCEIRO
+    </div>
+
+    <h1>Dashboard<span class="title-dot">.</span></h1>
+    <p class="page-description">
+      Acompanhe sua vida financeira e mantenha suas contas sob controle.
+    </p>
+  </div>
+
+  <div class="header-date">
+    <div class="date-icon">▦</div>
+    <div>
+      <strong>{{ nomeMesAtual }}</strong>
+      <span>Resumo financeiro mensal</span>
+    </div>
+  </div>
+</header>
+
+@if (erro) {
+  <div class="panel" role="alert">
+    <p>{{ erro }}</p>
+    <button type="button" (click)="carregarDados()">
+      Tentar novamente
+    </button>
+  </div>
+}
+
+@if (carregando) {
+  <section class="panel">
+    <p>Carregando informações financeiras...</p>
+  </section>
+} @else {
+  <section class="stats-grid">
+    <article class="stat-card balance-card">
+      <div class="balance-glow"></div>
+
+      <div class="stat-top">
+        <span class="stat-label">Saldo acumulado</span>
+        <span class="stat-icon green-icon">R$</span>
+      </div>
+
+      <h2 class="stat-value">
+        {{ saldo | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}
+      </h2>
+
+      <div class="stat-foot">
+        <span class="trend">Saldo atual</span>
+        <span>Receitas − despesas totais</span>
+      </div>
+    </article>
+
+    <article class="stat-card">
+      <div class="stat-top">
+        <span class="stat-label">Receitas do mês</span>
+        <span class="stat-icon green-icon">↗</span>
+      </div>
+
+      <h2 class="stat-value">
+        {{ receitas | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}
+      </h2>
+
+      <div class="stat-foot">
+        <span class="trend">Entradas</span>
+        <span>Registradas neste mês</span>
+      </div>
+
+      <div class="stat-progress">
+        <span class="income-progress"></span>
+      </div>
+    </article>
+
+    <article class="stat-card">
+      <div class="stat-top">
+        <span class="stat-label">Despesas do mês</span>
+        <span class="stat-icon red-icon">↘</span>
+      </div>
+
+      <h2 class="stat-value">
+        {{ despesas | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}
+      </h2>
+
+      <div class="stat-foot">
+        <span class="stat-neutral">Saídas</span>
+        <span>Registradas neste mês</span>
+      </div>
+
+      <div class="stat-progress">
+        <span class="expense-progress"></span>
+      </div>
+    </article>
+
+    <article class="stat-card">
+      <div class="stat-top">
+        <span class="stat-label">Resultado do mês</span>
+        <span class="stat-icon blue-icon">◷</span>
+      </div>
+
+      <h2
+        class="stat-value"
+        [class.value-income]="totalMes >= 0"
+        [class.value-expense]="totalMes < 0">
+        {{ totalMes | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}
+      </h2>
+
+      <div class="stat-foot">
+        <span class="stat-neutral">Balanço mensal</span>
+        <span>Receitas − despesas</span>
+      </div>
+
+      <div class="stat-progress">
+        <span class="result-progress"></span>
+      </div>
+    </article>
+  </section>
+
+  <section class="analytics-grid">
+    <article class="panel">
+      <div class="panel-header">
+        <div>
+          <h2>Visão geral</h2>
+          <p>Comparativo de receitas e despesas dos últimos seis meses</p>
+        </div>
+
+        <span class="panel-badge">Últimos 6 meses</span>
+      </div>
+
+      <div class="chart-legend">
+        <span>
+          <i class="legend-dot income-dot"></i>
+          Receitas
+        </span>
+
+        <span>
+          <i class="legend-dot expense-dot"></i>
+          Despesas
+        </span>
+      </div>
+
+      <div class="chart">
+        <div class="chart-y-axis">
+          <span>100%</span>
+          <span>75%</span>
+          <span>50%</span>
+          <span>25%</span>
+          <span>0%</span>
+        </div>
+
+        <div class="chart-main">
+          <div class="chart-grid-lines">
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+
+          <div class="chart-columns">
+            @for (mes of meses; track $index) {
+              <div class="month-column">
+                <div class="bar-pair">
+                  <div
+                    class="bar income-bar"
+                    [style.height]="alturaBarra(mes.receitas)"
+                    [title]="'Receitas: ' + (mes.receitas | currency:'BRL':'symbol':'1.2-2':'pt-BR')">
+                  </div>
+
+                  <div
+                    class="bar expense-bar"
+                    [style.height]="alturaBarra(mes.despesas)"
+                    [title]="'Despesas: ' + (mes.despesas | currency:'BRL':'symbol':'1.2-2':'pt-BR')">
+                  </div>
+                </div>
+
+                <span class="month-label">{{ mes.nome }}</span>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+
+      <div class="chart-note">
+        <span class="note-icon">i</span>
+        <span>
+          Os valores são calculados a partir das movimentações registradas.
+          Passe o cursor sobre as barras para consultar os valores.
+        </span>
+      </div>
+    </article>
+
+    <article class="panel">
+      <div class="panel-header">
+        <div>
+          <h2>Despesas por categoria</h2>
+          <p>Distribuição dos gastos do mês</p>
+        </div>
+      </div>
+
+      <div class="donut-wrap">
+        <div
+          class="donut-chart"
+          [style.background]="gradienteCategorias"
+          role="img"
+          aria-label="Distribuição das despesas por categoria">
+
+          <div class="donut-center">
+            <strong>
+              {{ despesas | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}
+            </strong>
+            <span>Total de despesas</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="category-list">
+        @for (categoria of categorias; track categoria.nome; let i = $index) {
+          <div class="category-item">
+            <div class="category-info">
+              <span class="category-name">
+                <i
+                  class="category-dot"
+                  [class.dot-0]="i % 4 === 0"
+                  [class.dot-1]="i % 4 === 1"
+                  [class.dot-2]="i % 4 === 2"
+                  [class.dot-3]="i % 4 === 3">
+                </i>
+
+                {{ categoria.nome }}
+              </span>
+
+              <strong>
+                {{ categoria.valor | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}
+              </strong>
+            </div>
+
+            <div class="category-track">
+              <span
+                class="category-fill"
+                [class.fill-0]="i % 4 === 0"
+                [class.fill-1]="i % 4 === 1"
+                [class.fill-2]="i % 4 === 2"
+                [class.fill-3]="i % 4 === 3"
+                [style.width.%]="categoria.percentual">
+              </span>
+            </div>
+
+            <div class="category-info">
+              <span class="category-name">Percentual das despesas</span>
+              <strong>
+                {{ categoria.percentual | number:'1.0-1':'pt-BR' }}%
+              </strong>
+            </div>
+          </div>
+        } @empty {
+          <p class="page-description">
+            Nenhuma despesa registrada neste mês.
+          </p>
+        }
+      </div>
+    </article>
+  </section>
+
+  <section class="panel transactions-panel">
+    <div class="panel-header transactions-header">
+      <div>
+        <h2>Movimentações recentes</h2>
+        <p>Últimos lançamentos financeiros registrados</p>
+      </div>
+
+      <a routerLink="/movimentacoes" class="view-all">
+        Ver todas <span>→</span>
+      </a>
+    </div>
+
+    @if (movimentacoesRecentes.length > 0) {
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>DESCRIÇÃO</th>
+              <th>CATEGORIA</th>
+              <th>DATA</th>
+              <th>TIPO</th>
+              <th class="align-right">VALOR</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            @for (item of movimentacoesRecentes; track item.id) {
+              <tr>
+                <td>
+                  <div class="transaction-name">
+                    <span
+                      class="transaction-icon"
+                      [class.transaction-income]="item.tipo === 'RECEITA'"
+                      [class.transaction-expense]="item.tipo === 'DESPESA'">
+                      {{ item.tipo === 'RECEITA' ? '↗' : '↘' }}
+                    </span>
+
+                    <strong>{{ item.descricao }}</strong>
+                  </div>
+                </td>
+
+                <td>
+                  <span class="category-text">
+                    {{ item.categoria || 'Outros' }}
+                  </span>
+                </td>
+
+                <td>
+                  {{ item.data | date:'dd/MM/yyyy':'':'pt-BR' }}
+                </td>
+
+                <td>
+                  <span
+                    class="type-pill"
+                    [class.type-income]="item.tipo === 'RECEITA'"
+                    [class.type-expense]="item.tipo === 'DESPESA'">
+                    {{ item.tipo === 'RECEITA' ? 'Receita' : 'Despesa' }}
+                  </span>
+                </td>
+
+                <td
+                  class="align-right"
+                  [class.value-income]="item.tipo === 'RECEITA'"
+                  [class.value-expense]="item.tipo === 'DESPESA'">
+                  {{ item.tipo === 'RECEITA' ? '+' : '−' }}
+                  {{ item.valor | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    } @else {
+      <div class="demo-disclaimer">
+        <span>i</span>
+        <p>Nenhuma movimentação cadastrada. Seus lançamentos aparecerão aqui.</p>
+      </div>
+    }
+  </section>
+}
